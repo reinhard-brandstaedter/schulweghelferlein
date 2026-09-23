@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schulweghelferlein
+  labels: { app: schulweghelferlein }
+spec:
+  replicas: 1          # SQLite: genau eine Instanz
+  strategy:
+    type: Recreate     # nie zwei Pods gleichzeitig auf dem RWO-Volume
+  selector:
+    matchLabels: { app: schulweghelferlein }
+  template:
+    metadata:
+      labels: { app: schulweghelferlein }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: app
+          image: ghcr.io/reinhard-brandstaedter/schulweghelferlein:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef: { name: schulweghelferlein, key: access-key }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: config, mountPath: /app/config.yaml, subPath: config.yaml }
+            - { name: tmp, mountPath: /tmp }
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+          livenessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            periodSeconds: 30
+          resources:
+            requests: { cpu: 10m, memory: 64Mi }
+            limits: { memory: 192Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: schulweghelferlein-data }
+        - name: config
+          configMap: { name: schulweghelferlein-config }
+        - name: tmp
+          emptyDir: {}

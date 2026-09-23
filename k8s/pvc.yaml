@@ -1,0 +1,13 @@
+# Dynamisch über den nfs-subdir-external-provisioner.
+# Ordner auf dem NAS: <namespace>-<pvc>, also "schulweghelferlein-schulweghelferlein-data".
+# StorageClass hat onDelete: retain – die Daten bleiben auch beim Löschen der PVC/des Namespaces erhalten.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: schulweghelferlein-data
+spec:
+  storageClassName: nfs-client
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1d6b3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Schulweghelferlein</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/icon.svg">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Anmeldung -->
+  <section id="login" class="screen" hidden>
+    <div class="login-box">
+      <img src="/static/icon.svg" alt="" class="login-icon">
+      <h1>Schulweghelferlein</h1>
+      <p class="muted">Bitte den Zugangsschlüssel eingeben. Dieses Gerät bleibt danach angemeldet.</p>
+      <form id="login-form">
+        <input id="login-key" type="password" autocomplete="current-password" placeholder="Schlüssel" required>
+        <button type="submit" class="btn-primary">Anmelden</button>
+        <p id="login-error" class="error" hidden></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <header class="topbar">
+      <h1 id="app-title">Schulweghelferlein</h1>
+    </header>
+
+    <main>
+      <!-- Erfassen -->
+      <section id="tab-entry" class="tab">
+        <form id="entry-form">
+          <h2 class="section-label">Standort</h2>
+          <div id="locations" class="choice-grid" role="radiogroup" aria-label="Standort"></div>
+
+          <h2 class="section-label">Datum</h2>
+          <div class="date-row" role="radiogroup" aria-label="Datum">
+            <button type="button" class="chip" data-date-offset="0">Heute</button>
+            <button type="button" class="chip" data-date-offset="-1">Gestern</button>
+            <label class="chip chip-date">
+              <span id="date-other-label">Anderes…</span>
+              <input id="date-other" type="date">
+            </label>
+          </div>
+
+          <h2 class="section-label">Verstöße</h2>
+          <div class="counters">
+            <div class="counter" data-cat="red">
+              <span class="counter-name"><span class="swatch sw-red"></span>Über Rot</span>
+              <button type="button" class="step" data-step="-1" aria-label="Rot minus eins">−</button>
+              <input type="number" inputmode="numeric" min="0" max="999" value="0" aria-label="Anzahl Rot">
+              <button type="button" class="step" data-step="1" aria-label="Rot plus eins">+</button>
+            </div>
+            <div class="counter" data-cat="yellow">
+              <span class="counter-name"><span class="swatch sw-yellow"></span>Über Gelb</span>
+              <button type="button" class="step" data-step="-1" aria-label="Gelb minus eins">−</button>
+              <input type="number" inputmode="numeric" min="0" max="999" value="0" aria-label="Anzahl Gelb">
+              <button type="button" class="step" data-step="1" aria-label="Gelb plus eins">+</button>
+            </div>
+            <div class="counter" data-cat="other">
+              <span class="counter-name"><span class="swatch sw-other"></span>Sonstige</span>
+              <button type="button" class="step" data-step="-1" aria-label="Sonstige minus eins">−</button>
+              <input type="number" inputmode="numeric" min="0" max="999" value="0" aria-label="Anzahl Sonstige">
+              <button type="button" class="step" data-step="1" aria-label="Sonstige plus eins">+</button>
+            </div>
+          </div>
+
+          <details class="note">
+            <summary>Notiz hinzufügen (optional)</summary>
+            <textarea id="note" maxlength="500" rows="2" placeholder="z. B. Polizei vor Ort, Ampel defekt …"></textarea>
+          </details>
+
+          <button type="submit" id="submit" class="btn-primary btn-big">Speichern</button>
+        </form>
+      </section>
+
+      <!-- Statistik -->
+      <section id="tab-stats" class="tab" hidden>
+        <div class="filters">
+          <div class="segmented" role="radiogroup" aria-label="Zeitraum">
+            <button type="button" data-gran="day" class="active">Tage</button>
+            <button type="button" data-gran="week">Wochen</button>
+            <button type="button" data-gran="month">Monate</button>
+          </div>
+          <select id="stats-location" aria-label="Standort filtern">
+            <option value="">Alle Standorte</option>
+          </select>
+        </div>
+        <p id="stats-range" class="muted small"></p>
+
+        <div class="kpis">
+          <div class="kpi"><span class="kpi-value" id="kpi-total">–</span><span class="kpi-label">Verstöße</span></div>
+          <div class="kpi"><span class="kpi-value" id="kpi-red">–</span><span class="kpi-label">davon Rot</span></div>
+          <div class="kpi"><span class="kpi-value" id="kpi-shifts">–</span><span class="kpi-label">Einsätze</span></div>
+          <div class="kpi"><span class="kpi-value" id="kpi-avg">–</span><span class="kpi-label">Ø pro Einsatz</span></div>
+        </div>
+
+        <figure class="card">
+          <figcaption>Verstöße nach Art</figcaption>
+          <div class="chart-box"><canvas id="chart-category"></canvas></div>
+        </figure>
+
+        <figure class="card" id="card-location-time">
+          <figcaption>Verstöße nach Standort</figcaption>
+          <div class="chart-box"><canvas id="chart-location-time"></canvas></div>
+        </figure>
+
+        <figure class="card">
+          <figcaption>Standorte im Vergleich <span class="muted small">(Ø Verstöße pro Einsatz)</span></figcaption>
+          <div class="chart-box chart-box-h" id="chart-location-box"><canvas id="chart-location"></canvas></div>
+        </figure>
+
+        <details class="card table-card">
+          <summary>Als Tabelle anzeigen</summary>
+          <div class="table-wrap"><table id="table-locations"></table></div>
+          <div class="table-wrap"><table id="table-time"></table></div>
+        </details>
+
+        <a href="/api/export.csv" class="btn-secondary" download>Alle Daten als CSV herunterladen</a>
+      </section>
+
+      <!-- Verlauf -->
+      <section id="tab-history" class="tab" hidden>
+        <p class="muted small">Die letzten 50 Einträge. Fehleinträge können hier gelöscht werden.</p>
+        <ul id="history" class="history"></ul>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button type="button" data-tab="entry" class="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Erfassen
+      </button>
+      <button type="button" data-tab="stats">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>Statistik
+      </button>
+      <button type="button" data-tab="history">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Verlauf
+      </button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/static/chart.umd.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

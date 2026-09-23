@@ -1,0 +1,12 @@
+services:
+  schulweghelferlein:
+    build: .
+    image: schulweghelferlein:latest
+    ports:
+      - "8000:8000"
+    environment:
+      ACCESS_KEY: ${ACCESS_KEY:?ACCESS_KEY setzen, z. B. in .env}
+    volumes:
+      - ./data:/data
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped

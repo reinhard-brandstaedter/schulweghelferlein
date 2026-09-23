@@ -1,0 +1,18 @@
+# Standorte der Schulweghelfer.
+# "id" wird in der Datenbank gespeichert und darf später nicht mehr geändert werden.
+# "name" ist nur die Anzeige und kann jederzeit angepasst werden.
+title: Schulweghelferlein
+
+locations:
+  - id: standort-1
+    name: Hauptstraße / Schulstraße
+  - id: standort-2
+    name: Bahnhofstraße Ampel
+  - id: standort-3
+    name: Kirchplatz
+  - id: standort-4
+    name: Lindenallee / Ringstraße
+  - id: standort-5
+    name: Sportplatz
+  - id: standort-6
+    name: Rathaus
