@@ -5,14 +5,16 @@ title: Schulweghelferlein
 
 locations:
   - id: standort-1
-    name: Hauptstraße / Schulstraße
+    name: Aschheimer Str.
   - id: standort-2
-    name: Bahnhofstraße Ampel
+    name: Hohenlindner Str. B471
   - id: standort-3
-    name: Kirchplatz
+    name: Hohenlindner/Bodmer Str.
   - id: standort-4
-    name: Lindenallee / Ringstraße
+    name: Bahnhofstr.
   - id: standort-5
-    name: Sportplatz
+    name: Zeppelinstr.
   - id: standort-6
-    name: Rathaus
+    name: Dornacherstr.
+  - id: standort-7
+    name: Emeranstr.
